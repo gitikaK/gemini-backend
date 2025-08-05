@@ -6,20 +6,24 @@ const axios = require('axios');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ✅ Use environment variable or fallback key (temporary for local testing)
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'AIzaSyCMAllMYjQn_5istbOnn8sumVqsA88Q_cQ';
+// ✅ Use ONLY the environment variable — no fallback
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 app.use(cors());
 app.use(bodyParser.json());
 
-// ✅ Health check route
+// ✅ Health check
 app.get('/', (req, res) => {
   res.send('✅ Gemini Backend is running!');
 });
 
-// ✅ Route matching frontend
+// ✅ Route expected by frontend
 app.post('/generate', async (req, res) => {
   const { prompt } = req.body;
+
+  if (!GEMINI_API_KEY) {
+    return res.status(500).json({ reply: 'API key not configured on server.' });
+  }
 
   try {
     const response = await axios.post(
